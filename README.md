@@ -1,73 +1,66 @@
 # Loop & Locket
 
-A pastel online shop for handmade crochet, lockets, and gifts. Hosted on Firebase (project `loopandlocket30`, owned by `loopandlocket26@gmail.com`), with payments by Stripe Checkout.
+A pastel online shop for handmade crochet, lockets, and gifts. Hosted on Firebase (project `loopandlocket30`, owned by `loopandlocket26@gmail.com`) on the free Spark plan. Uses Firebase Authentication for accounts and Stripe Payment Links for payments, with no database or server.
 
 - `public/`: the website (plain HTML/CSS/JS, no build step)
-- `functions/`: `checkout` (turns the cart into a Stripe payment page) and `stripeWebhook` (marks orders paid)
-- `firestore.rules`, `storage.rules`: who can read and change what
+- `public/products.json`: every product. Edit this to change the shop.
+
+## Products
+
+Each product in `public/products.json` looks like this:
+
+```json
+{
+  "id": "mini-frog",                                   // used in the link: /#/p/mini-frog
+  "name": "Mini Frog Buddy",
+  "category": "Crochet",                               // must match one of "categories" at the top
+  "price": 14.00,                                      // shown on the site; Stripe charges what the Payment Link says
+  "tint": "mint",                                      // card color: pink, mint, lavender, butter, sky, peach
+  "featured": true,                                    // optional: shows first and in the banner
+  "soldOut": true,                                     // optional: shows "Sold out" instead of Buy now
+  "stripeLink": "https://buy.stripe.com/…",            // the product's Payment Link; empty shows "Coming soon"
+  "images": ["images/mini-frog.jpg"],                  // optional: put photos in public/images/. Square looks best.
+  "description": "…",
+  "details": ["About 3 in tall", "…"]
+}
+```
+
+Products without photos get a pastel drawing for their category.
+
+## Payments (Stripe Payment Links)
+
+For each product, in the Stripe dashboard:
+
+1. Go to **Payment Links** and click **New**. Add the product at the same price as `products.json`.
+2. Under **Options**:
+   - Turn on **Collect customers' addresses** (shipping, US only).
+   - Add a **shipping rate**.
+   - Turn on **Let customers adjust quantity** if you want.
+3. Under **After payment**, choose **Don't show confirmation page** and redirect to `https://loopandlocket30.web.app/#/thanks`.
+4. Create the link, then paste it into that product's `"stripeLink"`.
+
+When a shopper is signed in, "Buy now" fills in their email at checkout. It also tags the payment with their account ID, which shows as "client reference ID" on the payment in Stripe.
+
+Orders, shipping addresses, and refunds are all in the Stripe dashboard under **Payments**. Turn on email receipts in Stripe (Settings → Emails) so buyers get one.
+
+Use test mode links (`buy.stripe.com/test_…`) and card `4242 4242 4242 4242` to try it first.
 
 ## Accounts
 
-- **Shoppers** can create an account with Google or email + password. Signed-in shoppers see their orders on the Account page. Checking out without an account also works.
-- **The owner** (`loopandlocket26@gmail.com`) sees an **Admin** button in the header. The admin page lets them:
-  - add, edit, and delete products, including uploading photos
-  - see paid orders with shipping addresses, and mark them shipped
-  - change categories and shipping prices
+Shoppers can sign in with Google or with an email and password.
 
-The owner should sign in with **Continue with Google**. Owner access needs a verified email, which Google sign-in always has.
+One-time setup in the Firebase console, signed in as the owner:
 
-To add another owner, add their email to the list in **both** `firestore.rules` and `storage.rules`, then run `firebase deploy --only firestore:rules,storage`.
+1. Build → **Authentication** → Get started.
+2. Turn on **Google** and **Email/Password**.
 
-## One-time setup (Firebase console, signed in as the owner)
-
-1. **Upgrade to Blaze** (pay-as-you-go): ⚙️ → Usage and billing. Photo uploads and checkout need it. A small shop stays inside the free allowance.
-2. **Firestore**: Build → Firestore Database → Create database. Use production mode and location `nam5 (United States)`.
-3. **Storage**: Build → Storage → Get started. Use the same US location.
-4. **Authentication**: Build → Authentication → Get started. Turn on **Google** and **Email/Password**.
-
-Then deploy everything except payments:
+## Deploy
 
 ```
-firebase deploy --only hosting,firestore,storage
+firebase deploy
 ```
 
-## Turning on payments
-
-1. Make a Stripe account and copy the **secret key** (Developers → API keys). Start with the `sk_test_…` key.
-2. Store it in Firebase (it's never put in the code):
-   ```
-   firebase functions:secrets:set STRIPE_SECRET_KEY
-   ```
-3. In Stripe → Developers → Webhooks, add an endpoint:
-   - URL: `https://us-central1-loopandlocket30.cloudfunctions.net/stripeWebhook`
-   - Events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.expired`
-
-   Copy its signing secret (`whsec_…`) and store it:
-   ```
-   firebase functions:secrets:set STRIPE_WEBHOOK_SECRET
-   ```
-4. Deploy:
-   ```
-   cd functions
-   npm install
-   cd ..
-   firebase deploy
-   ```
-
-To test, check out with card `4242 4242 4242 4242`, any future date, and any CVC. The order should appear under Admin → Orders.
-
-To go live:
-- Repeat steps 2 and 3 with the live key and a live-mode webhook.
-- Run `firebase deploy --only functions`.
-- Turn on email receipts in Stripe (Settings → Emails).
-
-## How orders work
-
-1. **Checkout** reads prices from Firestore, so shoppers can't change what they pay. It saves a `pending` order and sends the shopper to Stripe.
-2. **When the payment succeeds**, Stripe calls `stripeWebhook`. It marks the order `paid`, saves the shipping address, and lowers each product's stock.
-3. **If a checkout is abandoned**, the pending order is deleted when Stripe expires the session (24 hours).
-
-Refunds and payouts are handled in the Stripe dashboard.
+The site is live at https://loopandlocket30.web.app.
 
 ## Updating the Firebase SDK
 

@@ -2,12 +2,9 @@
   "hosting": {
     "public": "public",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "rewrites": [
-      { "source": "/api/checkout", "function": { "functionId": "checkout", "region": "us-central1" } }
-    ],
     "headers": [
       {
-        "source": "**/*.@(html|css|js)",
+        "source": "**/*.@(html|css|js|json)",
         "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
       },
       {
@@ -15,18 +12,5 @@
         "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
       }
     ]
-  },
-  "firestore": {
-    "rules": "firestore.rules"
-  },
-  "storage": {
-    "rules": "storage.rules"
-  },
-  "functions": [
-    {
-      "source": "functions",
-      "codebase": "default",
-      "ignore": ["node_modules", ".git", "*.local"]
-    }
-  ]
+  }
 }

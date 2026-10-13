@@ -14,25 +14,3 @@ export {
   createUserWithEmailAndPassword,
   updateProfile
 } from "firebase/auth";
-export {
-  getFirestore,
-  doc,
-  getDoc,
-  getDocs,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-  collection,
-  query,
-  where,
-  orderBy,
-  limit,
-  serverTimestamp
-} from "firebase/firestore";
-export {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  deleteObject
-} from "firebase/storage";

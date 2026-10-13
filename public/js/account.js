@@ -1,11 +1,9 @@
-// #/account: sign in / create an account, or (when signed in) your details and orders.
+// #/account: sign in / create an account, or (when signed in) your details.
 import {
-  auth, db, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  auth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword,
   updateProfile, sendEmailVerification, sendPasswordResetEmail, signOut,
-  collection, query, where, getDocs,
 } from "./fb.js";
-import { state } from "./state.js";
-import { $, esc, orderHTML, newestFirst } from "./util.js";
+import { $, esc } from "./util.js";
 
 const AUTH_ERRORS = {
   "auth/invalid-credential": "Wrong email or password.",
@@ -16,12 +14,14 @@ const AUTH_ERRORS = {
   "auth/too-many-requests": "Too many tries. Please wait a minute and try again.",
   "auth/popup-blocked": "Your browser blocked the sign-in window. Please allow pop-ups and try again.",
   "auth/network-request-failed": "Couldn't connect. Check your internet and try again.",
+  "auth/operation-not-allowed": "Signing in that way isn't turned on yet.",
+  "auth/configuration-not-found": "Accounts aren't turned on yet. Please check back soon.",
 };
 const QUIET = ["auth/popup-closed-by-user", "auth/cancelled-popup-request"];
 const friendly = (e) => AUTH_ERRORS[e.code] || "Something went wrong. Please try again.";
 
 export function viewAccount(app) {
-  if (state.user) viewProfile(app);
+  if (auth.currentUser) viewProfile(app, auth.currentUser);
   else viewSignIn(app);
 }
 
@@ -31,7 +31,7 @@ function viewSignIn(app, mode = "signin") {
   app.innerHTML = `
     <div class="auth-card">
       <h1>${signup ? "Create your account" : "Welcome back"}</h1>
-      <p class="muted">${signup ? "Keep track of your orders and check out faster." : "Sign in to see your orders."}</p>
+      <p class="muted">${signup ? "Check out faster with your details filled in." : "Sign in to check out faster."}</p>
 
       <button class="btn btn-google btn-block" id="google">
         <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-2.8-.4-4.1H24v7.8h12.1c-.3 2-1.6 4.9-4.6 6.9l7 5.4c4.2-3.9 6.6-9.6 6.6-16z"/><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.4l-7-5.4c-1.9 1.3-4.4 2.2-7.5 2.2-5.8 0-10.6-3.8-12.4-9.1l-7.2 5.6C8 41.1 15.4 46 24 46z"/><path fill="#FBBC05" d="M11.6 28.3c-.5-1.4-.7-2.8-.7-4.3s.3-3 .7-4.3l-7.2-5.6C2.9 17.1 2 20.4 2 24s.9 6.9 2.4 9.9l7.2-5.6z"/><path fill="#EA4335" d="M24 10.6c4.1 0 6.9 1.8 8.4 3.3l6.2-6C34.9 4.4 29.9 2 24 2 15.4 2 8 6.9 4.4 14.1l7.2 5.6c1.8-5.3 6.6-9.1 12.4-9.1z"/></svg>
@@ -104,13 +104,11 @@ function viewSignIn(app, mode = "signin") {
   });
 }
 
-function viewProfile(app) {
-  const u = state.user;
+function viewProfile(app, u) {
   const usesPassword = u.providerData.some((p) => p.providerId === "password");
   document.title = "Your account · Loop & Locket";
   app.innerHTML = `
-    <div class="account">
-      <section class="panel account-card">
+    <section class="auth-card account-card">
         <div class="avatar">${esc((u.displayName || u.email || "?")[0].toUpperCase())}</div>
         <h1>${u.displayName ? `Hi, ${esc(u.displayName.split(" ")[0])}!` : "Your account"}</h1>
         <p class="muted">${esc(u.email || "")}</p>
@@ -119,14 +117,10 @@ function viewProfile(app) {
             Please confirm your email. We sent a link to ${esc(u.email)}.
             <button class="link-btn" id="resend">Send it again</button>
           </div>` : ""}
-        ${state.isOwner ? `<a class="btn btn-secondary btn-block" href="#/admin">Shop admin</a>` : ""}
+        <p>While you're signed in, checkout fills in your email for you. Receipts for your orders are emailed to you by Stripe.</p>
+        <a class="btn btn-primary btn-block" href="#/">Keep shopping</a>
         <button class="btn btn-ghost" id="signout">Sign out</button>
-      </section>
-      <section>
-        <div class="section-head"><h2>Your orders</h2></div>
-        <div id="orders"><p class="muted">Loading your orders…</p></div>
-      </section>
-    </div>`;
+    </section>`;
 
   $("#signout").addEventListener("click", () => signOut(auth));
   $("#resend")?.addEventListener("click", async (e) => {
@@ -137,18 +131,4 @@ function viewProfile(app) {
       e.target.replaceWith("Couldn't send right now. Try again later.");
     }
   });
-  loadOrders($("#orders"));
-}
-
-async function loadOrders(el) {
-  try {
-    const snap = await getDocs(query(collection(db, "orders"), where("uid", "==", state.user.uid)));
-    const orders = snap.docs.map((d) => ({ id: d.id, ...d.data() })).filter((o) => o.status !== "pending").sort(newestFirst);
-    el.innerHTML = orders.length
-      ? orders.map((o) => orderHTML(o)).join("")
-      : `<div class="empty"><h2>No orders yet</h2><p>When you buy something while signed in, it shows up here.</p><a class="btn btn-primary" href="#/">Go shopping</a></div>`;
-  } catch (e) {
-    console.error(e);
-    el.innerHTML = `<p class="muted">Couldn't load your orders right now.</p>`;
-  }
 }

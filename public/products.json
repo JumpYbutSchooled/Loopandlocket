@@ -1,0 +1,121 @@
+{
+  "currency": "usd",
+  "categories": ["Crochet", "Lockets", "Charms & Keychains", "Gift Sets"],
+  "products": [
+    {
+      "id": "strawberry-cow",
+      "name": "Strawberry Cow Plushie",
+      "category": "Crochet",
+      "price": 24.00,
+      "tint": "pink",
+      "featured": true,
+      "stripeLink": "",
+      "images": [],
+      "description": "A squishy little cow in strawberry pink, crocheted by hand with super-soft yarn. Perfect for desks, shelves, and cuddling.",
+      "details": ["About 6 in tall", "Soft chenille yarn", "Safety eyes", "Spot clean only"]
+    },
+    {
+      "id": "mini-frog",
+      "name": "Mini Frog Buddy",
+      "category": "Crochet",
+      "price": 14.00,
+      "tint": "mint",
+      "featured": true,
+      "stripeLink": "",
+      "images": [],
+      "description": "A tiny frog friend who fits in your palm. Every frog comes out a little different.",
+      "details": ["About 3 in tall", "Cotton blend yarn", "Made to order"]
+    },
+    {
+      "id": "granny-bucket-hat",
+      "name": "Granny Square Bucket Hat",
+      "category": "Crochet",
+      "price": 32.00,
+      "tint": "butter",
+      "stripeLink": "",
+      "images": [],
+      "description": "A cozy bucket hat stitched from pastel granny squares. Stretchy and easy to wear.",
+      "details": ["Fits most adults", "100% acrylic", "Hand wash cold, lay flat to dry"]
+    },
+    {
+      "id": "scrunchie-trio",
+      "name": "Crochet Scrunchie Trio",
+      "category": "Crochet",
+      "price": 15.00,
+      "tint": "lavender",
+      "stripeLink": "",
+      "images": [],
+      "description": "Three soft scrunchies in mixed pastels. Gentle on hair and cute on your wrist.",
+      "details": ["Set of 3", "Colors vary"]
+    },
+    {
+      "id": "classic-heart-locket",
+      "name": "Classic Heart Locket",
+      "category": "Lockets",
+      "price": 28.00,
+      "tint": "pink",
+      "featured": true,
+      "stripeLink": "",
+      "images": [],
+      "description": "A heart locket that opens to hold two tiny photos. Comes on a dainty 18 in chain.",
+      "details": ["Gold-tone finish", "18 in chain", "Holds 2 photos"]
+    },
+    {
+      "id": "vintage-oval-locket",
+      "name": "Vintage Oval Photo Locket",
+      "category": "Lockets",
+      "price": 34.00,
+      "tint": "lavender",
+      "stripeLink": "",
+      "images": [],
+      "description": "An oval locket with a soft engraved pattern, made to feel like a family heirloom.",
+      "details": ["Silver-tone finish", "20 in chain", "Holds 2 photos"]
+    },
+    {
+      "id": "pressed-flower-locket",
+      "name": "Pressed Flower Locket",
+      "category": "Lockets",
+      "price": 38.00,
+      "tint": "peach",
+      "featured": true,
+      "stripeLink": "",
+      "images": [],
+      "description": "A glass-front locket holding real pressed flowers. No two are the same.",
+      "details": ["Real pressed flowers", "18 in chain", "Glass front"]
+    },
+    {
+      "id": "tulip-keychain",
+      "name": "Crochet Tulip Keychain",
+      "category": "Charms & Keychains",
+      "price": 9.00,
+      "tint": "lavender",
+      "stripeLink": "",
+      "images": [],
+      "description": "A little tulip that never wilts. Clips onto keys, bags, and zippers.",
+      "details": ["About 4 in long", "Metal key ring"]
+    },
+    {
+      "id": "bow-bag-charm",
+      "name": "Bow Bag Charm",
+      "category": "Charms & Keychains",
+      "price": 12.00,
+      "tint": "sky",
+      "stripeLink": "",
+      "images": [],
+      "description": "A puffy crocheted bow with a tiny heart charm. Makes any bag cuter.",
+      "details": ["Lobster clasp", "Heart charm"]
+    },
+    {
+      "id": "gift-box",
+      "name": "Loop & Locket Gift Box",
+      "category": "Gift Sets",
+      "price": 55.00,
+      "tint": "butter",
+      "featured": true,
+      "stripeLink": "",
+      "images": [],
+      "description": "A heart locket, a mini crochet buddy, and a handwritten note, wrapped and ready to give.",
+      "details": ["Classic Heart Locket", "Mini crochet buddy of your choice", "Gift wrapped with a note"]
+    }
+  ]
+}
