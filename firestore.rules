@@ -1,0 +1,42 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // The shop owner. To add another owner, add their email here AND in storage.rules, then
+    // `firebase deploy --only firestore:rules,storage`. The email must be verified (Google sign-in always is).
+    function isOwner() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['loopandlocket26@gmail.com'];
+    }
+
+    // The site reads this to find out whether to show the admin page. Nothing is stored here.
+    match /ownerCheck/{id} {
+      allow read: if isOwner();
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isOwner()
+        && request.resource.data.name is string
+        && request.resource.data.price is number
+        && request.resource.data.price > 0;
+      allow delete: if isOwner();
+    }
+
+    match /settings/{id} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // Created and paid by the Cloud Functions (which bypass these rules).
+    // Shoppers can see their own orders; the owner can see all and mark them shipped.
+    match /orders/{orderId} {
+      allow read: if isOwner() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow update: if isOwner()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'shippedAt'])
+        && request.resource.data.status == 'shipped';
+    }
+  }
+}

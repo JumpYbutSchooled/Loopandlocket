@@ -1,0 +1,21 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Product photos: anyone can view, only the owner can upload or delete.
+    // Keep the owner email list the same as in firestore.rules.
+    match /products/{productId}/{file} {
+      allow read: if true;
+      allow delete: if isOwner();
+      allow create, update: if isOwner()
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    function isOwner() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['loopandlocket26@gmail.com'];
+    }
+  }
+}

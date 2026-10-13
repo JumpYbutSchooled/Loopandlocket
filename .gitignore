@@ -4,5 +4,4 @@ node_modules/
 *.local
 .env
 .env.*
-functions/products.json
 big e thingy.txt
