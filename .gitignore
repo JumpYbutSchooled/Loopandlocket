@@ -1,0 +1,8 @@
+node_modules/
+.firebase/
+*.log
+*.local
+.env
+.env.*
+functions/products.json
+big e thingy.txt
